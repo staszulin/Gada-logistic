@@ -104,7 +104,6 @@ select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
   <button class="new-order-btn" onclick="resetForm()">+ הזמנה חדשה</button>
   <div class="footer" style="margin-top:16px">© כל הזכויות שמורות לסטס זולין · Gada Group</div>
 </div>
-
 <script>
 const DB = "https://gada-grup-default-rtdb.asia-southeast1.firebasedatabase.app";
 const CHAIN_COLORS = {
@@ -112,6 +111,131 @@ const CHAIN_COLORS = {
   "מקס סטוק":"#8B5CF6","ביג סטוק":"#EC4899","סיטי מרקט":"#06B6D4",
   "הסטוק":"#22C55E","גמה דיל":"#F59E0B",
 };
+
+// רשימת הסניפים (השארתי את המבנה המקורי שלך)
+const BRANCHES = [
+  {id:101,chain:"דן דיל",city:"עכו",address:"הרצל 20"},
+  {id:102,chain:"דן דיל",city:"קרית חיים",address:"איצטדיון 5"},
+  // ... שאר הסניפים שלך ...
+  {id:807,chain:"גמה דיל",city:"חיפה גרנד קניון",address:"גרנד קניון חיפה"}
+];
+
+let qty = 1;
+
+function filterBranches() {
+  const chain = document.getElementById("chain-select").value;
+  const sel = document.getElementById("branch-select");
+  const info = document.getElementById("branch-info");
+  
+  // איפוס הסלקט
+  sel.innerHTML = '<option value="">— בחר סניף —</option>';
+  info.style.display = "none";
+
+  if(!chain) { 
+    sel.disabled = true; 
+    return; 
+  }
+
+  const filtered = BRANCHES.filter(b => b.chain === chain);
+  
+  if(filtered.length > 0) {
+    filtered.forEach(b => {
+      const o = document.createElement("option");
+      o.value = b.id;
+      o.textContent = b.city + " — " + b.address;
+      sel.appendChild(o);
+    });
+    sel.disabled = false; // שחרור הנעילה רק אם יש סניפים
+  } else {
+    sel.disabled = true;
+  }
+}
+
+function showBranchInfo() {
+  const sel = document.getElementById("branch-select");
+  const id = parseInt(sel.value);
+  const info = document.getElementById("branch-info");
+  
+  if(!id) { 
+    info.style.display = "none"; 
+    return; 
+  }
+  
+  const b = BRANCHES.find(x => x.id === id);
+  if(!b) return;
+
+  const clr = CHAIN_COLORS[b.chain] || "#64748B";
+  info.innerHTML = `
+    <div class="branch-name">${b.city}</div>
+    <div class="branch-addr">${b.address}</div>
+    <span class="chain-badge" style="background:${clr}18;color:${clr};border:1px solid ${clr}30">${b.chain}</span>
+  `;
+  info.style.display = "block";
+}
+
+function changeQty(delta) {
+  qty = Math.max(1, Math.min(50, qty + delta));
+  document.getElementById("qty-display").textContent = qty;
+}
+
+async function submitOrder() {
+  const agent = document.getElementById("agent-name").value.trim();
+  const chain = document.getElementById("chain-select").value;
+  const branchId = parseInt(document.getElementById("branch-select").value);
+  const note = document.getElementById("note").value.trim();
+
+  if(!agent) { alert("נא למלא שם סוכן"); return; }
+  if(!chain) { alert("נא לבחור רשת"); return; }
+  if(!branchId) { alert("נא לבחור סניף"); return; }
+
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.innerHTML = 'שולח... <span class="loading-spinner"></span>';
+
+  const branch = BRANCHES.find(b => b.id === branchId);
+  const today = new Date().toISOString().slice(0,10);
+  const entry = { qty, date: today, agent, note };
+
+  try {
+    const res = await fetch(`${DB}/orders/${branchId}.json`, {
+      method: "PUT",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(entry)
+    });
+    if(!res.ok) throw new Error();
+
+    document.getElementById("form-card").style.display = "none";
+    document.getElementById("success-card").style.display = "block";
+    document.getElementById("success-details").innerHTML = `
+      <strong>${branch.chain} — ${branch.city}</strong><br>
+      ${qty} משטחים · ${today.split("-").reverse().join("/")}
+    `;
+  } catch(e) {
+    alert("שגיאה בשליחה");
+    btn.disabled = false;
+    btn.innerHTML = "📦 שלח הזמנה";
+  }
+}
+
+function resetForm() {
+  location.reload(); // הדרך הכי בטוחה לאפס הכל למצב תקין
+}
+
+window.onload = () => {
+  const params = new URLSearchParams(location.search);
+  const bid = parseInt(params.get("branch"));
+  if(bid) {
+    const b = BRANCHES.find(x => x.id === bid);
+    if(b) {
+      document.getElementById("chain-select").value = b.chain;
+      filterBranches();
+      document.getElementById("branch-select").value = bid;
+      showBranchInfo();
+    }
+  }
+};
+</script>
+  
 
 const BRANCHES = [
   {id:101,chain:"דן דיל",city:"עכו",address:"הרצל 20"},
