@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="theme-color" content="#1E40AF"/>
 <title>Gada Group — הזמנה</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -16,30 +14,16 @@ h1{font-size:20px;font-weight:800;color:#1E293B;}
 h2{font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px;}
 label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:16px;}
 select,input,textarea{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:15px;outline:none;background:#FAFAFA;color:#1E293B;font-family:inherit;direction:rtl;}
-select:focus,input:focus,textarea:focus{border-color:#1D4ED8;background:#fff;}
+select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
 select:disabled{background:#E2E8F0;cursor:not-allowed;opacity:0.6;}
 .qty-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
-.qty-btn{width:44px;height:44px;border-radius:10px;border:1.5px solid #E2E8F0;background:#F1F5F9;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#374151;transition:all .1s;}
-.qty-btn:active{transform:scale(.93);}
-.qty-btn.plus{background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8;}
-.qty-btn.minus{background:#FEF2F2;border-color:#FECACA;color:#DC2626;}
+.qty-btn{width:44px;height:44px;border-radius:10px;border:1.5px solid #E2E8F0;background:#F1F5F9;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#374151;}
 .qty-display{flex:1;text-align:center;font-size:28px;font-weight:800;color:#1D4ED8;padding:8px;border:1.5px solid #BFDBFE;border-radius:10px;background:#EFF6FF;}
-.submit-btn{width:100%;padding:16px;background:#1D4ED8;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;margin-top:24px;font-family:inherit;transition:all .15s;}
-.submit-btn:active{transform:scale(.98);background:#1E40AF;}
-.submit-btn:disabled{background:#94A3B8;cursor:not-allowed;}
+.submit-btn{width:100%;padding:16px;background:#1D4ED8;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;margin-top:24px;font-family:inherit;}
+.submit-btn:disabled{background:#94A3B8;}
+.branch-info{background:#F8FAFF;border:1.5px solid #DBEAFE;border-radius:10px;padding:12px 14px;margin-top:8px;display:none;}
 .success{display:none;text-align:center;padding:32px 16px;}
-.success-icon{font-size:60px;margin-bottom:16px;}
-.success-title{font-size:22px;font-weight:800;color:#15803D;margin-bottom:8px;}
-.success-sub{font-size:14px;color:#6B7280;}
-.new-order-btn{margin-top:20px;padding:12px 24px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;color:#15803D;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
-.branch-info{background:#F8FAFF;border:1.5px solid #DBEAFE;border-radius:10px;padding:12px 14px;margin-top:8px;}
-.branch-name{font-size:16px;font-weight:700;color:#1E293B;}
-.branch-addr{font-size:12px;color:#94A3B8;margin-top:2px;}
-.chain-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px;}
-.note-field{resize:none;height:80px;}
 .footer{text-align:center;margin-top:24px;font-size:11px;color:#CBD5E1;}
-.loading-spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:8px;}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -54,110 +38,45 @@ select:disabled{background:#E2E8F0;cursor:not-allowed;opacity:0.6;}
   </div>
 
   <label>שם הסוכן *</label>
-  <input type="text" id="agent-name" placeholder="שם מלא" autocomplete="name"/>
+  <input type="text" id="agent-name" placeholder="שם מלא">
 
   <label>רשת *</label>
   <select id="chain-select" onchange="filterBranches()">
     <option value="">— בחר רשת —</option>
-    <option>דן דיל</option>
-    <option>זול סטוק</option>
-    <option>בום</option>
-    <option>מקס סטוק</option>
-    <option>ביג סטוק</option>
-    <option>סיטי מרקט</option>
-    <option>הסטוק</option>
-    <option>גמה דיל</option>
+    <option value="דן דיל">דן דיל</option>
+    <option value="זול סטוק">זול סטוק</option>
+    <option value="בום">בום</option>
+    <option value="מקס סטוק">מקס סטוק</option>
+    <option value="ביג סטוק">ביג סטוק</option>
+    <option value="סיטי מרקט">סיטי מרקט</option>
+    <option value="הסטוק">הסטוק</option>
+    <option value="גמה דיל">גמה דיל</option>
   </select>
 
   <label>סניף *</label>
   <select id="branch-select" onchange="showBranchInfo()" disabled>
     <option value="">— בחר סניף —</option>
   </select>
-  <div class="branch-info" id="branch-info" style="display:none"></div>
+
+  <div class="branch-info" id="branch-info"></div>
 
   <label>כמות משטחים *</label>
   <div class="qty-row">
-    <button class="qty-btn minus" onclick="changeQty(-1)">−</button>
+    <button class="qty-btn" onclick="changeQty(-1)">−</button>
     <div class="qty-display" id="qty-display">1</div>
-    <button class="qty-btn plus" onclick="changeQty(1)">+</button>
+    <button class="qty-btn" onclick="changeQty(1)">+</button>
   </div>
 
   <label>הערה (אופציונלי)</label>
-  <textarea class="note-field" id="note" placeholder="הערות מיוחדות להזמנה..."></textarea>
+  <textarea id="note" style="height:80px;" placeholder="הערות מיוחדות..."></textarea>
 
-  <button class="submit-btn" id="submit-btn" onclick="submitOrder()">
-    📦 שלח הזמנה
-  </button>
-
+  <button class="submit-btn" id="submit-btn" onclick="submitOrder()">📦 שלח הזמנה</button>
   <div class="footer">© כל הזכויות שמורות לסטס זולין · Gada Group</div>
 </div>
 
 <div class="card success" id="success-card">
-  <div class="success-icon">✅</div>
-  <div class="success-title">ההזמנה נשלחה!</div>
-  <div class="success-sub" id="success-details"></div>
-  <button class="new-order-btn" onclick="resetForm()">+ הזמנה חדשה</button>
-  <div class="footer" style="margin-top:16px">© כל הזכויות שמורות לסטס זולין · Gada Group</div>
-</div>
-
-<script>
-const DB = "https://gada-grup-default-rtdb.asia-southeast1.firebasedatabase.app";
-const CHAIN_COLORS = {
-  "דן דיל":"#EF4444","זול סטוק":"#3B82F6","בום":"#F97316",
-  "מקס סטוק":"#8B5CF6","ביג סטוק":"#EC4899","סיטי מרקט":"#06B6D4",
-  "הסטוק":"#22C55E","גמה דיל":"#F59E0B",
-};
-
-const BRANCHES = [
-  {id:101,chain:"דן דיל",city:"עכו",address:"הרצל 20"},
-  {id:102,chain:"דן דיל",city:"קרית חיים",address:"איצטדיון 5"},
-  {id:103,chain:"דן דיל",city:"טירת כרמל",address:"המלאכה 3"},
-  {id:104,chain:"דן דיל",city:"פרדס חנה",address:"הדקלים 99"},
-  {id:105,chain:"דן דיל",city:"עפולה",address:"ארלוזורוב 29"},
-  {id:106,chain:"דן דיל",city:"רמת גן",address:"הרואה 123"},
-  {id:107,chain:"דן דיל",city:"תל אביב",address:"י.ל גורדון 40"},
-  {id:108,chain:"דן דיל",city:"חולון",address:"חנקין 79"},
-  {id:109,chain:"דן דיל",city:"פתח תקווה",address:"בן ציון גאליס 34"},
-  {id:110,chain:"דן דיל",city:"מודיעין",address:"שדרות המלאכות 14"},
-  {id:111,chain:"דן דיל",city:"יבנה",address:"הנחשול 22"},
-  {id:112,chain:"דן דיל",city:"באר שבע",address:"מקס נורדאו 1"},
-  {id:201,chain:"זול סטוק",city:"קרית ביאליק",address:"שכונת אפקה"},
-  {id:202,chain:"זול סטוק",city:"אלבטוף",address:"רומת אלהייב"},
-  {id:203,chain:"זול סטוק",city:"זרזיר",address:"אלסלאם 129"},
-  {id:204,chain:"זול סטוק",city:"בית שאן",address:"שאול המלך 22"},
-  {id:205,chain:"זול סטוק",city:"חריש",address:"התמדה 4א"},
-  {id:206,chain:"זול סטוק",city:"חדרה",address:"שכטמן 10"},
-  {id:207,chain:"זול סטוק",city:"יקנעם",address:"שדרות יצחק רבין"},
-  {id:208,chain:"זול סטוק",city:"קרני שומרון",address:"רחבעם זאבי 1"},
-  {id:209,chain:"זול סטוק",city:"ראש העין",address:"שבזי 12"},
-  {id:210,chain:"זול סטוק",city:"תל מונד",address:"א.ת תל מונד"},
-  {id:211,chain:"זול סטוק",city:"כפר סבא",address:"היוצרים 2"},
-  {id:212,chain:"זול סטוק",city:"רעננה",address:"אחוזה 77"},
-  {id:213,chain:"זול סטוק",city:"ראשון לציון",address:"מתחם חונים קונים"},
-  {id:214,chain:"זול סטוק",city:"באקה אל גרביה",address:"17 אבו נאר"},
-  {id:215,chain:"זול סטוק",city:"טייבה",address:"כביש ראשי 444"},
-  {id:216,chain:"זול סטוק",city:"אלעד",address:"יהודה הנשיא 95"},
-  {id:217,chain:"זול סטוק",city:"כפר קאסם",address:"חמזה 9"},
-  {id:218,chain:"זול סטוק",city:"טירה",address:"א.ת טירה המשולש"},
-  {id:219,chain:"זול סטוק",city:"תל אביב יפו",address:"חבר הלאומים 1"},
-  {id:220,chain:"זול סטוק",city:"אור יהודה",address:"המפעל 2"},
-  {id:221,chain:"זול סטוק",city:"אור עקיבא",address:"ההדס 22"},
-  {id:222,chain:"זול סטוק",city:"כפר קרע",address:"כפר קרע"},
-  {id:223,chain:"זול סטוק",city:"פתח תקווה",address:"גיסין אבשלום 11"},
-  {id:224,chain:"זול סטוק",city:"צור יצחק",address:"נחל אלכסנדר 19"},
-  {id:225,chain:"זול סטוק",city:"תל אביב",address:"חשמונאים 121"},
-  {id:226,chain:"זול סטוק",city:"שוהם",address:"אגוז 9"},
-  {id:227,chain:"זול סטוק",city:"בית אל",address:"מבנה המתנס"},
-  {id:228,chain:"זול סטוק",city:"ירושלים",address:"הגננת 216"},
-  {id:229,chain:"זול סטוק",city:"מודיעין עילית",address:"אבני נזר 46"},
-  {id:230,chain:"זול סטוק",city:"ירושלים בית וגן",address:"הרב עוזיאל 86"},
-  {id:231,chain:"זול סטוק",city:"ירושלים כנפי נשרים",address:"כנפי נשרים 22"},
-  {id:232,chain:"זול סטוק",city:"ירושלים דוידקה",address:"יפו 97"},
-  {id:233,chain:"זול סטוק",city:"שער בנימין",address:"א.ת שער בנימין"},
-  {id:234,chain:"זול סטוק",city:"קרית מלאכי",address:"היוצר 1"},
-  {id:235,chain:"זול סטוק",city:"אשדוד",address:"בעלי המלאכה 4"},
-  {id:236,chain:"זול סטוק",city:"אשדוד סטאר סנטר",address:"סטאר סנטר"},
-  {id:237,chain:"זול סטוק",city:"קרית גת",address:"שדרות לכיש 173"},
-  {id:238,chain:"זול סטוק",city:"אופקים",address:"ז בוטינסקי 20"},
-  {id:239,chain:"זול סטוק",city:"רהט",
-   
+  <div style="font-size:60px">✅</div>
+  <h1 style="color:#15803D">ההזמנה נשלחה!</h1>
+  <div id="success-details" style="margin:16px 0; font-size:14px; color:#64748B"></div>
+  <button class
+    
