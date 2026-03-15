@@ -15,8 +15,9 @@ body{font-family:"Segoe UI",Tahoma,sans-serif;direction:rtl;background:#F1F5F9;m
 h1{font-size:20px;font-weight:800;color:#1E293B;}
 h2{font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px;}
 label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;margin-top:16px;}
-select,input{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:15px;outline:none;background:#FAFAFA;color:#1E293B;font-family:inherit;direction:rtl;}
-select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
+select,input,textarea{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:15px;outline:none;background:#FAFAFA;color:#1E293B;font-family:inherit;direction:rtl;}
+select:focus,input:focus,textarea:focus{border-color:#1D4ED8;background:#fff;}
+select:disabled{background:#E2E8F0;cursor:not-allowed;opacity:0.6;}
 .qty-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
 .qty-btn{width:44px;height:44px;border-radius:10px;border:1.5px solid #E2E8F0;background:#F1F5F9;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#374151;transition:all .1s;}
 .qty-btn:active{transform:scale(.93);}
@@ -52,11 +53,9 @@ select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
     </div>
   </div>
 
-  <!-- Agent name -->
   <label>שם הסוכן *</label>
   <input type="text" id="agent-name" placeholder="שם מלא" autocomplete="name"/>
 
-  <!-- Chain select -->
   <label>רשת *</label>
   <select id="chain-select" onchange="filterBranches()">
     <option value="">— בחר רשת —</option>
@@ -70,14 +69,12 @@ select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
     <option>גמה דיל</option>
   </select>
 
-  <!-- Branch select -->
   <label>סניף *</label>
   <select id="branch-select" onchange="showBranchInfo()" disabled>
     <option value="">— בחר סניף —</option>
   </select>
   <div class="branch-info" id="branch-info" style="display:none"></div>
 
-  <!-- Quantity -->
   <label>כמות משטחים *</label>
   <div class="qty-row">
     <button class="qty-btn minus" onclick="changeQty(-1)">−</button>
@@ -85,7 +82,6 @@ select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
     <button class="qty-btn plus" onclick="changeQty(1)">+</button>
   </div>
 
-  <!-- Note -->
   <label>הערה (אופציונלי)</label>
   <textarea class="note-field" id="note" placeholder="הערות מיוחדות להזמנה..."></textarea>
 
@@ -96,7 +92,6 @@ select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
   <div class="footer">© כל הזכויות שמורות לסטס זולין · Gada Group</div>
 </div>
 
-<!-- Success screen -->
 <div class="card success" id="success-card">
   <div class="success-icon">✅</div>
   <div class="success-title">ההזמנה נשלחה!</div>
@@ -104,6 +99,7 @@ select:focus,input:focus{border-color:#1D4ED8;background:#fff;}
   <button class="new-order-btn" onclick="resetForm()">+ הזמנה חדשה</button>
   <div class="footer" style="margin-top:16px">© כל הזכויות שמורות לסטס זולין · Gada Group</div>
 </div>
+
 <script>
 const DB = "https://gada-grup-default-rtdb.asia-southeast1.firebasedatabase.app";
 const CHAIN_COLORS = {
@@ -111,131 +107,6 @@ const CHAIN_COLORS = {
   "מקס סטוק":"#8B5CF6","ביג סטוק":"#EC4899","סיטי מרקט":"#06B6D4",
   "הסטוק":"#22C55E","גמה דיל":"#F59E0B",
 };
-
-// רשימת הסניפים (השארתי את המבנה המקורי שלך)
-const BRANCHES = [
-  {id:101,chain:"דן דיל",city:"עכו",address:"הרצל 20"},
-  {id:102,chain:"דן דיל",city:"קרית חיים",address:"איצטדיון 5"},
-  // ... שאר הסניפים שלך ...
-  {id:807,chain:"גמה דיל",city:"חיפה גרנד קניון",address:"גרנד קניון חיפה"}
-];
-
-let qty = 1;
-
-function filterBranches() {
-  const chain = document.getElementById("chain-select").value;
-  const sel = document.getElementById("branch-select");
-  const info = document.getElementById("branch-info");
-  
-  // איפוס הסלקט
-  sel.innerHTML = '<option value="">— בחר סניף —</option>';
-  info.style.display = "none";
-
-  if(!chain) { 
-    sel.disabled = true; 
-    return; 
-  }
-
-  const filtered = BRANCHES.filter(b => b.chain === chain);
-  
-  if(filtered.length > 0) {
-    filtered.forEach(b => {
-      const o = document.createElement("option");
-      o.value = b.id;
-      o.textContent = b.city + " — " + b.address;
-      sel.appendChild(o);
-    });
-    sel.disabled = false; // שחרור הנעילה רק אם יש סניפים
-  } else {
-    sel.disabled = true;
-  }
-}
-
-function showBranchInfo() {
-  const sel = document.getElementById("branch-select");
-  const id = parseInt(sel.value);
-  const info = document.getElementById("branch-info");
-  
-  if(!id) { 
-    info.style.display = "none"; 
-    return; 
-  }
-  
-  const b = BRANCHES.find(x => x.id === id);
-  if(!b) return;
-
-  const clr = CHAIN_COLORS[b.chain] || "#64748B";
-  info.innerHTML = `
-    <div class="branch-name">${b.city}</div>
-    <div class="branch-addr">${b.address}</div>
-    <span class="chain-badge" style="background:${clr}18;color:${clr};border:1px solid ${clr}30">${b.chain}</span>
-  `;
-  info.style.display = "block";
-}
-
-function changeQty(delta) {
-  qty = Math.max(1, Math.min(50, qty + delta));
-  document.getElementById("qty-display").textContent = qty;
-}
-
-async function submitOrder() {
-  const agent = document.getElementById("agent-name").value.trim();
-  const chain = document.getElementById("chain-select").value;
-  const branchId = parseInt(document.getElementById("branch-select").value);
-  const note = document.getElementById("note").value.trim();
-
-  if(!agent) { alert("נא למלא שם סוכן"); return; }
-  if(!chain) { alert("נא לבחור רשת"); return; }
-  if(!branchId) { alert("נא לבחור סניף"); return; }
-
-  const btn = document.getElementById("submit-btn");
-  btn.disabled = true;
-  btn.innerHTML = 'שולח... <span class="loading-spinner"></span>';
-
-  const branch = BRANCHES.find(b => b.id === branchId);
-  const today = new Date().toISOString().slice(0,10);
-  const entry = { qty, date: today, agent, note };
-
-  try {
-    const res = await fetch(`${DB}/orders/${branchId}.json`, {
-      method: "PUT",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(entry)
-    });
-    if(!res.ok) throw new Error();
-
-    document.getElementById("form-card").style.display = "none";
-    document.getElementById("success-card").style.display = "block";
-    document.getElementById("success-details").innerHTML = `
-      <strong>${branch.chain} — ${branch.city}</strong><br>
-      ${qty} משטחים · ${today.split("-").reverse().join("/")}
-    `;
-  } catch(e) {
-    alert("שגיאה בשליחה");
-    btn.disabled = false;
-    btn.innerHTML = "📦 שלח הזמנה";
-  }
-}
-
-function resetForm() {
-  location.reload(); // הדרך הכי בטוחה לאפס הכל למצב תקין
-}
-
-window.onload = () => {
-  const params = new URLSearchParams(location.search);
-  const bid = parseInt(params.get("branch"));
-  if(bid) {
-    const b = BRANCHES.find(x => x.id === bid);
-    if(b) {
-      document.getElementById("chain-select").value = b.chain;
-      filterBranches();
-      document.getElementById("branch-select").value = bid;
-      showBranchInfo();
-    }
-  }
-};
-</script>
-  
 
 const BRANCHES = [
   {id:101,chain:"דן דיל",city:"עכו",address:"הרצל 20"},
@@ -288,220 +159,5 @@ const BRANCHES = [
   {id:236,chain:"זול סטוק",city:"אשדוד סטאר סנטר",address:"סטאר סנטר"},
   {id:237,chain:"זול סטוק",city:"קרית גת",address:"שדרות לכיש 173"},
   {id:238,chain:"זול סטוק",city:"אופקים",address:"ז בוטינסקי 20"},
-  {id:239,chain:"זול סטוק",city:"רהט",address:"כביש ראשי"},
-  {id:240,chain:"זול סטוק",city:"באר שבע",address:"פלח 7"},
-  {id:241,chain:"זול סטוק",city:"באר שבע אביה",address:"מבצע יואב 49"},
-  {id:242,chain:"זול סטוק",city:"שדרות",address:"פרץ סנטר"},
-  {id:243,chain:"זול סטוק",city:"אילת",address:"חטיבת גולני 38"},
-  {id:244,chain:"זול סטוק",city:"גדרה",address:"פינס 4"},
-  {id:245,chain:"זול סטוק",city:"גן יבנה",address:"הכישור 26"},
-  {id:246,chain:"זול סטוק",city:"יבנה",address:"הדוגית 16"},
-  {id:247,chain:"זול סטוק",city:"נתיבות",address:"מתחם צים אורבן"},
-  {id:301,chain:"בום",city:"אור יהודה",address:"החרושת 32"},
-  {id:302,chain:"בום",city:"אשדוד",address:"קניון הסיטי"},
-  {id:303,chain:"בום",city:"אשקלון",address:"התחייה"},
-  {id:304,chain:"בום",city:"באר טוביה",address:"גלובוס סנטר"},
-  {id:305,chain:"בום",city:"באר שבע עזריאלי",address:"קניון עזריאלי הנגב"},
-  {id:306,chain:"בום",city:"באר שבע הרכבת",address:"בן צבי 10"},
-  {id:307,chain:"בום",city:"בני ברק",address:"בר כוכבא 23"},
-  {id:308,chain:"בום",city:"חיפה",address:"יהודה איתין 5"},
-  {id:309,chain:"בום",city:"מבקיעים",address:"גלובוס סנטר"},
-  {id:310,chain:"בום",city:"נשר",address:"דרך בר יהודה 54"},
-  {id:311,chain:"בום",city:"פתח תקווה",address:"בר כוכבא 7"},
-  {id:312,chain:"בום",city:"קרית גת",address:"אסתר המלכה 7"},
-  {id:313,chain:"בום",city:"ראשון לציון",address:"לישנסקי 20"},
-  {id:314,chain:"בום",city:"רמלה",address:"משה אדרת 4"},
-  {id:315,chain:"בום",city:"שפיים",address:"מתחם שפיים"},
-  {id:401,chain:"מקס סטוק",city:"אום אל פחם",address:"מקס 20"},
-  {id:402,chain:"מקס סטוק",city:"אור עקיבא",address:"ההדס 22"},
-  {id:403,chain:"מקס סטוק",city:"אילת",address:"הסתת 17"},
-  {id:404,chain:"מקס סטוק",city:"אריאל",address:"מלון אשל השומרון"},
-  {id:405,chain:"מקס סטוק",city:"אשדוד",address:"בעלי המלאכה 4"},
-  {id:406,chain:"מקס סטוק",city:"אשקלון",address:"הפנינים 40"},
-  {id:407,chain:"מקס סטוק",city:"באר שבע",address:"חיל הנדסה 1"},
-  {id:408,chain:"מקס סטוק",city:"בית שמש",address:"קניון נעימי"},
-  {id:409,chain:"מקס סטוק",city:"בני ברק",address:"לח"},
-  {id:410,chain:"מקס סטוק",city:"מיני מקס בני ברק",address:"רבי עקיבא 14"},
-  {id:411,chain:"מקס סטוק",city:"בת ים",address:"בלפור 84"},
-  {id:412,chain:"מקס סטוק",city:"מיני מקס גבעתיים",address:"וייצמן 23"},
-  {id:413,chain:"מקס סטוק",city:"גדרה",address:"א.ת גדרה"},
-  {id:414,chain:"מקס סטוק",city:"חיפה",address:"חוצות המפרץ"},
-  {id:415,chain:"מקס סטוק",city:"ירושלים מלחה",address:"מלחה"},
-  {id:416,chain:"מקס סטוק",city:"ירושלים תלפיות",address:"תלפיות"},
-  {id:417,chain:"מקס סטוק",city:"כפר סבא",address:"א.ת כפר סבא"},
-  {id:418,chain:"מקס סטוק",city:"כרמיאל",address:"מיי סנטר"},
-  {id:419,chain:"מקס סטוק",city:"מודיעין",address:"ישפרו סנטר"},
-  {id:420,chain:"מקס סטוק",city:"מיני מקס נחלת יצחק",address:"נחלת יצחק 8"},
-  {id:421,chain:"מקס סטוק",city:"נהריה",address:"א.ת נהריה"},
-  {id:422,chain:"מקס סטוק",city:"נס ציונה",address:"ישפרו סנטר"},
-  {id:423,chain:"מקס סטוק",city:"נצרת עילית",address:"א.ת"},
-  {id:424,chain:"מקס סטוק",city:"נתניה",address:"א.ת נתניה"},
-  {id:425,chain:"מקס סטוק",city:"עפולה",address:"BIG עפולה"},
-  {id:426,chain:"מקס סטוק",city:"פתח תקווה",address:"א.ת פתח תקווה"},
-  {id:427,chain:"מקס סטוק",city:"קרית ים",address:"א.ת קרית ים"},
-  {id:428,chain:"מקס סטוק",city:"קרית שמונה",address:"א.ת קרית שמונה"},
-  {id:429,chain:"מקס סטוק",city:"ראשון לציון",address:"ONE ראשלצ"},
-  {id:430,chain:"מקס סטוק",city:"רחובות",address:"א.ת רחובות"},
-  {id:431,chain:"מקס סטוק",city:"תל אביב",address:"קיקר המדינה"},
-  {id:432,chain:"מקס סטוק",city:"בארות יצחק",address:"ONE בארות יצחק"},
-  {id:433,chain:"מקס סטוק",city:"חולון",address:"א.ת חולון"},
-  {id:434,chain:"מקס סטוק",city:"יבנה",address:"א.ת יבנה"},
-  {id:501,chain:"ביג סטוק",city:"באר שבע מול 7",address:"הנדסה 30"},
-  {id:502,chain:"ביג סטוק",city:"באר שבע קרית הממשלה",address:"התקווה 4"},
-  {id:503,chain:"ביג סטוק",city:"שדרות",address:"מול 7 צמוד לרכבת"},
-  {id:504,chain:"ביג סטוק",city:"נתניה",address:"א.ת נתניה"},
-  {id:505,chain:"ביג סטוק",city:"מבשרת ציון",address:"מבשרת ציון"},
-  {id:506,chain:"ביג סטוק",city:"ירושלים תלפיות",address:"תלפיות"},
-  {id:601,chain:"סיטי מרקט",city:"תל אביב",address:"א.ת הצפון"},
-  {id:602,chain:"סיטי מרקט",city:"ירושלים",address:"גבעת שאול"},
-  {id:603,chain:"סיטי מרקט",city:"ראשון לציון",address:"א.ת ראשון לציון"},
-  {id:604,chain:"סיטי מרקט",city:"חיפה קריות",address:"א.ת הקריות"},
-  {id:605,chain:"סיטי מרקט",city:"נתניה",address:"א.ת נתניה"},
-  {id:606,chain:"סיטי מרקט",city:"אשדוד",address:"א.ת אשדוד"},
-  {id:607,chain:"סיטי מרקט",city:"באר שבע",address:"א.ת באר שבע"},
-  {id:608,chain:"סיטי מרקט",city:"פתח תקווה",address:"א.ת פתח תקווה"},
-  {id:609,chain:"סיטי מרקט",city:"רחובות",address:"א.ת רחובות"},
-  {id:701,chain:"הסטוק",city:"אופקים",address:"ז בוטינסקי 33"},
-  {id:702,chain:"הסטוק",city:"אור יהודה",address:"המלאכה 11"},
-  {id:703,chain:"הסטוק",city:"אילת",address:"א.ת אילת"},
-  {id:704,chain:"הסטוק",city:"באר שבע",address:"מרכז נווה זאב"},
-  {id:705,chain:"הסטוק",city:"בארות יצחק",address:"מתחם ONE"},
-  {id:706,chain:"הסטוק",city:"בית שאן",address:"מרכז צים"},
-  {id:707,chain:"הסטוק",city:"בית שמש",address:"כיכר נוימן"},
-  {id:708,chain:"הסטוק",city:"בת ים",address:"העצמאות 67"},
-  {id:709,chain:"הסטוק",city:"חיפה",address:"א.ת חיפה"},
-  {id:710,chain:"הסטוק",city:"חולון",address:"א.ת חולון"},
-  {id:711,chain:"הסטוק",city:"טבריה",address:"א.ת טבריה"},
-  {id:712,chain:"הסטוק",city:"ירושלים",address:"א.ת ירושלים"},
-  {id:713,chain:"הסטוק",city:"נתניה",address:"א.ת נתניה"},
-  {id:714,chain:"הסטוק",city:"נצרת עילית",address:"א.ת נצרת עילית"},
-  {id:715,chain:"הסטוק",city:"פרדס חנה",address:"א.ת פרדס חנה"},
-  {id:716,chain:"הסטוק",city:"פתח תקווה",address:"דן טאון"},
-  {id:717,chain:"הסטוק",city:"קרית מלאכי",address:"א.ת קרית מלאכי"},
-  {id:718,chain:"הסטוק",city:"ראשון לציון",address:"א.ת ראשון לציון"},
-  {id:719,chain:"הסטוק",city:"רחובות",address:"א.ת רחובות"},
-  {id:720,chain:"הסטוק",city:"ערד",address:"א.ת ערד"},
-  {id:721,chain:"הסטוק",city:"קרית גת",address:"א.ת קרית גת"},
-  {id:722,chain:"הסטוק",city:"אשדוד",address:"א.ת אשדוד"},
-  {id:723,chain:"הסטוק",city:"עפולה",address:"א.ת עפולה"},
-  {id:724,chain:"הסטוק",city:"שדרות",address:"א.ת שדרות"},
-  {id:725,chain:"הסטוק",city:"אשקלון",address:"א.ת אשקלון"},
-  {id:726,chain:"הסטוק",city:"רמלה",address:"א.ת רמלה"},
-  {id:727,chain:"הסטוק",city:"כרמיאל",address:"א.ת כרמיאל"},
-  {id:728,chain:"הסטוק",city:"מודיעין",address:"א.ת מודיעין"},
-  {id:729,chain:"הסטוק",city:"נהריה",address:"א.ת נהריה"},
-  {id:730,chain:"הסטוק",city:"קרית שמונה",address:"א.ת קרית שמונה"},
-  {id:801,chain:"גמה דיל",city:"כרמיאל ביג",address:"ביג כרמיאל"},
-  {id:802,chain:"גמה דיל",city:"כרמיאל חרושת",address:"חרושת"},
-  {id:803,chain:"גמה דיל",city:"נהריה הגדוד",address:"הגדוד 21"},
-  {id:804,chain:"גמה דיל",city:"נהריה געתון",address:"מתחם רכבת"},
-  {id:805,chain:"גמה דיל",city:"עכו",address:"ליד רמי לוי"},
-  {id:806,chain:"גמה דיל",city:"חיפה עזריאלי",address:"קניון עזריאלי חיפה"},
-  {id:807,chain:"גמה דיל",city:"חיפה גרנד קניון",address:"גרנד קניון חיפה"},
-];
-
-let qty = 1;
-
-function filterBranches() {
-  const chain = document.getElementById("chain-select").value;
-  const sel = document.getElementById("branch-select");
-  sel.innerHTML = '<option value="">— בחר סניף —</option>';
-  if(!chain) { sel.disabled=true; return; }
-  const filtered = BRANCHES.filter(b=>b.chain===chain);
-  filtered.forEach(b=>{
-    const o = document.createElement("option");
-    o.value = b.id;
-    o.textContent = b.city + " — " + b.address;
-    sel.appendChild(o);
-  });
-  sel.disabled = false;
-  document.getElementById("branch-info").style.display="none";
-}
-
-function showBranchInfo() {
-  const id = parseInt(document.getElementById("branch-select").value);
-  const info = document.getElementById("branch-info");
-  if(!id) { info.style.display="none"; return; }
-  const b = BRANCHES.find(x=>x.id===id);
-  if(!b) return;
-  const clr = CHAIN_COLORS[b.chain]||"#64748B";
-  info.innerHTML = `
-    <div class="branch-name">${b.city}</div>
-    <div class="branch-addr">${b.address}</div>
-    <span class="chain-badge" style="background:${clr}18;color:${clr};border:1px solid ${clr}30">${b.chain}</span>
-  `;
-  info.style.display="block";
-}
-
-function changeQty(delta) {
-  qty = Math.max(1, Math.min(50, qty + delta));
-  document.getElementById("qty-display").textContent = qty;
-}
-
-async function submitOrder() {
-  const agent = document.getElementById("agent-name").value.trim();
-  const chain = document.getElementById("chain-select").value;
-  const branchId = parseInt(document.getElementById("branch-select").value);
-  const note = document.getElementById("note").value.trim();
-
-  if(!agent) { alert("נא למלא שם סוכן"); document.getElementById("agent-name").focus(); return; }
-  if(!chain) { alert("נא לבחור רשת"); return; }
-  if(!branchId) { alert("נא לבחור סניף"); return; }
-
-  const btn = document.getElementById("submit-btn");
-  btn.disabled = true;
-  btn.innerHTML = 'שולח... <span class="loading-spinner"></span>';
-
-  const branch = BRANCHES.find(b=>b.id===branchId);
-  const today = new Date().toISOString().slice(0,10);
-  const entry = { qty, date: today, agent, note };
-
-  try {
-    const res = await fetch(DB+"/orders/"+branchId+".json", {
-      method:"PUT",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(entry)
-    });
-    if(!res.ok) throw new Error("שגיאת שרת");
-
-    // Show success
-    document.getElementById("form-card").style.display="none";
-    document.getElementById("success-card").style.display="block";
-    document.getElementById("success-details").innerHTML =
-      `<strong>${branch.chain} — ${branch.city}</strong><br>
-       ${qty} משטח${qty>1?"ים":""} · ${today.split("-").reverse().join("/")}<br>
-       ${note ? "הערה: "+note : ""}<br><br>
-       ההזמנה נכנסה למערכת ✅`;
-  } catch(e) {
-    alert("שגיאה בשליחה, נסה שוב");
-    btn.disabled = false;
-    btn.innerHTML = "📦 שלח הזמנה";
-  }
-}
-
-function resetForm() {
-  qty = 1;
-  document.getElementById("agent-name").value="";
-  document.getElementById("chain-select").value="";
-  document.getElementById("branch-select").innerHTML='<option value="">— בחר סניף —</option>';
-  document.getElementById("branch-select").disabled=true;
-  document.getElementById("branch-info").style.display="none";
-  document.getElementById("qty-display").textContent="1";
-  document.getElementById("note").value="";
-  document.getElementById("submit-btn").disabled=false;
-  document.getElementById("submit-btn").innerHTML="📦 שלח הזמנה";
-  document.getElementById("success-card").style.display="none";
-  document.getElementById("form-card").style.display="block";
-}
-
-// Pre-fill from URL params (e.g. ?branch=302)
-window.onload = () => {
-  const params = new URLSearchParams(location.search);
-  const bid = parseInt(params.get("branch"));
-  if(bid) {
-    const b = BRANCHES.find(x=>x.id===bid);
-    if(b) {
-      document.getElementById("chain-select").value = b.chain;
-      filterBranches();
-      document.getElementById("branch-select").value = bid;
-      
+  {id:239,chain:"זול סטוק",city:"רהט",
+   
